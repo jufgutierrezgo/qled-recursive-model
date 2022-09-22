@@ -511,30 +511,10 @@ class Recursivemodel:
                 for color in range(Constants.NO_LEDS):
 
                     hlast_er[i][:,color] = np.sum(np.multiply(hlast_er[i-1][:,color],np.multiply(room.reflectance_vectors[:,color],dP_ij)),axis=1)
-                    print("hlast->",np.shape(hlast_er[i]))
+                    #print("hlast->",np.shape(hlast_er[i]))
 
                     self.h_k[i][:,color] = np.multiply(h0_se[:,0],hlast_er[i][:,color])
-                    print("h_k->",np.shape(self.h_k[i]))    
-                
-
-                
-
-                
-
-                #Computes the current h_er 
-                #hnext_er = np.multiply(hlast_er[i-1],np.dot(dP_ij,room.reflectance_vectors))
-
-                #Computes the current h_k (h_se + h_er)
-                #self.h_k[i] = np.multiply(np.reshape(h0_se[:,0],(-1,1)),hlast_er[i])                
-                #partial_matrix = np.multiply(h0_se[:,0],np.multiply(np.multiply(np.reshape(hlast_er[i-1],(1,-1)),dP_ij)))                
-                #self.h_k[i] = np.multiply(room.reflectance_vectors**2,np.reshape(np.sum(partial_matrix,axis=1),(-1,1)))
-                #print(np.shape(room.reflectance_vectors[:,0]))
-                #print(np.shape(np.multiply(hlast_er[i-1],room.reflectance_vectors[:,0]**2)))
-                #h_er = np.multiply(np.reshape(np.multiply(hlast_er[i-1],np.reshape(room.reflectance_vectors[:,0],(-1,1))),(1,-1)),dP_ij)
-                #print("h_er->",np.shape(h_er))
-                #self.h_k[i] = np.reshape(np.sum(np.multiply(np.reshape(np.multiply(h0_se[:,0],room.reflectance_vectors[:,0]),(1,-1)),h_er),axis=1),(-1,1))
-                #print("h_er->",np.shape(self.h_k[i]))
-                #print("H2->", self.h_k[i][:,0])               
+                    #print("h_k->",np.shape(self.h_k[i]))                 
 
                 print("|>>--------------h{}-computed--------------<<|".format(i))              
             
