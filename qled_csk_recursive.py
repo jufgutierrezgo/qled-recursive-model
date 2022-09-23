@@ -5,6 +5,7 @@ from functools import partial
 
 import numpy as np 
 from numpy import loadtxt
+from numpy.core.function_base import linspace
 
 import sys
 np.set_printoptions(threshold=sys.maxsize)
@@ -35,6 +36,8 @@ import timeit
 
 import os
 
+
+
 #Class constants
 class Constants:
     # global variables
@@ -46,11 +49,13 @@ class Constants:
     #directory to save channel impulse response raw data
     SENSOR_PATH = ROOT_DIR + "/sensors/"
     #directory to save histograms and graphs  
-    #REPORT_PATH = ROOT_DIR + "/report/"
+    REPORT_PATH = ROOT_DIR + "/report/"
     #Numbers of LED (Transmission channels)
     NO_LEDS = 4
     #Numbers of Photodetector Channels
     NO_DETECTORS = 3
+    #Speed of light
+    SPEED_OF_LIGHT = 299792458
 
 #Class for the TRansmitter
 class Transmitter:    
@@ -454,12 +459,26 @@ class Recursivemodel:
         self.h_k = []
         hlast_er = []
         
+        #Array creation for time delay
+        self.delay_hk = []
+        delay_hlast_er = []
+
+        #Time delay matrix
+        tDelay_ij = np.zeros((room.no_points,room.no_points),dtype=np.float32)
+        tDelay_ij = room.wall_parameters[0,:,:]/Constants.SPEED_OF_LIGHT
+        #print(np.shape(tDelay_ij))
+
 
         for i in range(room.no_reflections+1):
             
             #Creates the array to save h_k reflections response and last h_er response
-            self.h_k.append(np.zeros((room.no_points,4),np.float64))
-            hlast_er.append(np.zeros((room.no_points,4),np.float64)) 
+            self.h_k.append(np.zeros((room.no_points,4),np.float32))
+            hlast_er.append(np.zeros((room.no_points,4),np.float32)) 
+
+            #Creates the array to save time-delay reflections response and last h_er
+            self.delay_hk.append(np.zeros((room.no_points,1),np.float32))
+            delay_hlast_er.append(np.zeros((room.no_points,1),np.float32)) 
+
 
             if i == 0:           
                 
@@ -467,7 +486,8 @@ class Recursivemodel:
                 self.h_k[i][0,:] = tx_power[int(rx_index_point)]*rx_wall_factor[int(tx_index_point)]
                 
                 #Time Delay of CIR in LoS
-                #h_k[i][0,1] = room.wall_parameters[0,int(tx_index_point),int(rx_index_point)]/SPEED_OF_LIGHT
+                self.delay_hk[i][0,0] = tDelay_ij[int(tx_index_point),int(rx_index_point)]
+                print("self.delay_hk->",self.delay_hk[i][0,0])
 
                 print("|>>--------------h{}-computed--------------<<|".format(i))              
                 #numpy.savetxt(CIR_PATH+"h0.csv", h_k[i], delimiter=",")
@@ -494,11 +514,9 @@ class Recursivemodel:
                 #Red-Green-Blue-Yellow                
                 self.h_k[i] = np.multiply(h0_se,hlast_er[i])
 
-                #print("H1->", self.h_k[i][:,0])               
-
-                #Time delay for h1 impulse response
-                #h_k[i][:,4] = h0_se[:,1] + h0_er[:,1]
-                
+                #Time-Delay computing
+                delay_hlast_er[i] = tDelay_ij[int(rx_index_point),:]
+                self.delay_hk[i] = tDelay_ij[int(tx_index_point),:] + delay_hlast_er[i]
 
                 print("|>>--------------h{}-computed--------------<<|".format(i))              
                 #np.savetxt(CIR_PATH+"h1.csv", h_k[i], delimiter=","              
@@ -515,6 +533,12 @@ class Recursivemodel:
 
                     self.h_k[i][:,color] = np.multiply(h0_se[:,0],hlast_er[i][:,color])
                     #print("h_k->",np.shape(self.h_k[i]))                 
+
+
+                #Time-Delay computing
+                delay_hlast_er[i] = np.sum(np.reshape(delay_hlast_er[i-1],(1,-1)) + tDelay_ij,axis=1)/room.no_points
+                self.delay_hk[i] =  tDelay_ij[int(tx_index_point),:] + delay_hlast_er[i]
+
 
                 print("|>>--------------h{}-computed--------------<<|".format(i))              
             
@@ -535,6 +559,128 @@ class Recursivemodel:
         self.rgby_dcgain = np.sum(self.h_dcgain, axis = 0)
         print("Total RGBY DC Gain Power [W]")
         print(self.rgby_dcgain)
+
+        return 0
+
+    #Function to create histograms from channel impulse response raw data.
+    def create_histograms(self):
+        """Function to create histograms from channel impulse response raw data. 
+        
+        The channel impulse response raw data is a list with power and time delay 
+        of every ray. Many power histograms are created based on time resolution 
+        defined in the TIME_RESOLUTION constant. 
+
+        Parameters:
+            h_k: list with channel impulse response [h_0,h_1,...,h_k]. 
+            k_reflec: number of reflections
+            no_cells: number of points of model
+
+        Returns: A List with the next parameters
+            hist_power_time: Power histograms for each reflection
+            total_ht: total power CIR histrogram 
+            time_scale: 1d-array with time scale
+
+        """
+
+        self.time_resolution = 0.2e-9
+        self.bins_hist = 300
+
+        self.total_histogram = np.zeros((self.bins_hist,4))
+        self.hist_power_time = []
+        delay_aux = np.zeros((room.no_points,1))
+
+        print("//------------- Data report ------------------//")
+        print("Time resolution [s]:"+str(self.time_resolution))
+        print("Number of Bins:"+str(self.bins_hist))      
+        
+        delay_los = self.delay_hk[0][0,0]        
+        #print(np.shape(delay_los))        
+        
+        print("Optical power reported in histograms:")
+
+        for k_reflec in range(room.no_reflections+1):            
+            
+            self.hist_power_time.append(np.zeros((self.bins_hist,4),np.float32))      
+
+            #Delay_aux variable
+            delay_aux = np.reshape(self.delay_hk[k_reflec],(-1,1)) - delay_los
+            delay_aux = np.floor(delay_aux/self.time_resolution)
+            #print(np.shape(delay_aux))
+
+            for j in range(room.no_points):
+                #print(int(delay_aux[j]))                
+                #print(self.h_k[i][j,:])
+                self.hist_power_time[k_reflec][int(delay_aux[j,0]),:] += self.h_k[k_reflec][j,:]
+
+                    
+            self.time_scale = linspace(0,self.bins_hist*self.time_resolution,num=self.bins_hist)          
+            print("H" + str(k_reflec) + ": " , np.sum(self.hist_power_time[k_reflec],axis=0))       
+
+            self.total_histogram += self.hist_power_time[k_reflec]
+        
+        return 0
+
+
+
+    #This function plots the channel impulse response for 4 colors
+    def plot_cir(self,channel):
+        
+        self.channel = channel
+
+        if self.channel == 'red':
+            color_number = 0
+        elif self.channel == 'green':
+            color_number = 1
+        elif self.channel == 'blue':
+            color_number = 2
+        elif self.channel == 'yellow':
+            color_number = 3
+        else:
+            print("Invalid color name ('red' or 'green' or 'blue' or 'yellow').")
+            color_number = -1
+
+
+        
+
+        if color_number == -1:
+            print("Graphs were not generated.")
+        else:
+            for k_reflec in range(0,room.no_reflections+1):
+                #print(np.shape(self.hist_power_time[k_reflec][:,color_number]))
+                     
+
+                fig, (vax) = plt.subplots(1, 1, figsize=(12, 6))
+                #vax.plot(self.delay_hk[k_reflec],self.h_k[k_reflec][:,i], 'o',markersize=2)
+                #vax.vlines(self.delay_hk[k_reflec],[0],self.h_k[k_reflec][:,i],linewidth=1)
+                vax.plot(self.time_scale,self.hist_power_time[k_reflec][:,color_number], 'o',markersize=2)
+                vax.vlines(self.time_scale,[0],self.hist_power_time[k_reflec][:,color_number],linewidth=1)
+
+                vax.set_xlabel("time(s) \n Time resolution:",fontsize=15)
+                vax.set_ylabel('Power(W)',fontsize=15)
+                vax.set_title("Channel "+self.channel+" Impulse Response h"+str(k_reflec)+"(t)",fontsize=20)
+
+                vax.grid(color = 'black', linestyle = '--', linewidth = 0.5)
+                
+                
+                fig.savefig(Constants.REPORT_PATH+"h"+str(k_reflec)+".png")        
+                plt.show()
+
+
+            fig, (vax) = plt.subplots(1, 1, figsize=(12, 6))
+            #vax.plot(self.delay_hk[k_reflec],self.h_k[k_reflec][:,i], 'o',markersize=2)
+            #vax.vlines(self.delay_hk[k_reflec],[0],self.h_k[k_reflec][:,i],linewidth=1)
+            vax.plot(self.time_scale,self.total_histogram[:,color_number], 'o',markersize=2)
+            vax.vlines(self.time_scale,[0],self.total_histogram[:,color_number],linewidth=1)
+
+            vax.set_xlabel("time(s) \n Time resolution:",fontsize=15)
+            vax.set_ylabel('Power(W)',fontsize=15)
+            vax.set_title("Channel "+self.channel+" Total Impulse Response h(t)",fontsize=20)
+
+            vax.grid(color = 'black', linestyle = '--', linewidth = 0.5)
+            
+            
+            fig.savefig(Constants.REPORT_PATH+self.channel+"-htotal.png")        
+            plt.show()
 
         return 0
 
@@ -634,8 +780,8 @@ starttime = timeit.default_timer()
 #code to simulate a VLC channel
 
 led1 = Transmitter("Led1")
-led1.set_position([3.75,2.75,1])
-led1.set_normal([0,0,1]) 
+led1.set_position([2.5,2.5,3])
+led1.set_normal([0,0,-1]) 
 led1.set_mlambert(1)
 led1.set_power(1)
 led1.set_wavelengths([650,530,430,580])
@@ -644,28 +790,28 @@ led1.get_parameters()
 #led1.led_pattern()
 
 pd1 =  Photodetector("PD1")
-pd1.set_position([6,0.8,0.8])
+pd1.set_position([0.5,1.0,0])
 pd1.set_normal([0,0,1])
 pd1.set_area(1e-4)
-pd1.set_fov(70)
+pd1.set_fov(85)
 pd1.set_responsivity('S10917-35GT')
 pd1.plot_responsivity()
 pd1.get_parameters()
 
 room = Indoorenvironment("Room")
-room.set_size([7.5,5.5,3.5])
+room.set_size([5,5,3])
 room.set_noreflections(3)
-room.set_pointresolution(1/6)
-room.set_reflectance('ceiling',[0.69,0.69,0.69,0.69])
-room.set_reflectance('west',[0.12,0.12,0.12,0.12])
-room.set_reflectance('north',[0.58,0.58,0.58,0.58])
-room.set_reflectance('east',[0.3,0.3,0.3,0.3])
-room.set_reflectance('south',[0.56,0.56,0.56,0.56])
-room.set_reflectance('floor',[0.09,0.09,0.09,0.09])    
+room.set_pointresolution(1/4)
+room.set_reflectance('ceiling',[0.8,0.8,0.8,0.8])
+room.set_reflectance('west',[0.8,0.8,0.8,0.8])
+room.set_reflectance('north',[0.8,0.8,0.8,0.8])
+room.set_reflectance('east',[0.8,0.8,0.8,0.8])
+room.set_reflectance('south',[0.8,0.8,0.8,0.8])
+room.set_reflectance('floor',[0.3,0.3,0.3,0.3])    
 room.create_grid(led1.position,pd1.position)
 room.create_parameters(pd1.fov)
 
-channel_model = Recursivemodel("ChannelModelB",led1,pd1,room)
+channel_model = Recursivemodel("ChannelModelA",led1,pd1,room)
 channel_model.compute_cir()
 channel_model.compute_dcgain()
 channel_model.create_spd()
@@ -674,6 +820,8 @@ channel_model.compute_cct_cri()
 channel_model.compute_irradiance()
 channel_model.compute_illuminance()
 channel_model.compute_channelmatrix()
+channel_model.create_histograms()
+channel_model.plot_cir('red')
 
 
 #ending code
