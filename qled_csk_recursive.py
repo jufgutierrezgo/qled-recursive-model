@@ -524,6 +524,10 @@ class Recursivemodel:
 
             elif i>=2:                
 
+                #Time-Delay computing
+                delay_hlast_er[i] = np.sum(np.reshape(delay_hlast_er[i-1],(1,-1)) + tDelay_ij,axis=1)/room.no_points
+                self.delay_hk[i] =  tDelay_ij[int(tx_index_point),:] + delay_hlast_er[i]
+
                 #Computes the last h_er to compute h_k  
                 #hlast_er[i] = np.multiply(hlast_er[i-1],np.multiply(room.reflectance_vectors,np.reshape(np.sum(dP_ij,axis=0),(-1,1))))
                 for color in range(Constants.NO_LEDS):
@@ -535,9 +539,7 @@ class Recursivemodel:
                     #print("h_k->",np.shape(self.h_k[i]))                 
 
 
-                #Time-Delay computing
-                delay_hlast_er[i] = np.sum(np.reshape(delay_hlast_er[i-1],(1,-1)) + tDelay_ij,axis=1)/room.no_points
-                self.delay_hk[i] =  tDelay_ij[int(tx_index_point),:] + delay_hlast_er[i]
+                
 
 
                 print("|>>--------------h{}-computed--------------<<|".format(i))              
@@ -801,7 +803,7 @@ pd1.get_parameters()
 room = Indoorenvironment("Room")
 room.set_size([5,5,3])
 room.set_noreflections(3)
-room.set_pointresolution(1/4)
+room.set_pointresolution(1/8)
 room.set_reflectance('ceiling',[0.8,0.8,0.8,0.8])
 room.set_reflectance('west',[0.8,0.8,0.8,0.8])
 room.set_reflectance('north',[0.8,0.8,0.8,0.8])
