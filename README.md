@@ -1,6 +1,6 @@
 # QLED-Recursive-Model
 
-The **qled-recursive-model * is a script to compute the DC-gain of optical link in the visible range using a recursive model presented in [1]. 
+The **qled-recursive-model** is a script to compute the DC-gain of optical link in the visible range using a recursive model presented in [1]. 
 
 ## Installation
 
