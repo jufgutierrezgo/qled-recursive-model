@@ -822,8 +822,8 @@ channel_model.compute_cct_cri()
 channel_model.compute_irradiance()
 channel_model.compute_illuminance()
 channel_model.compute_channelmatrix()
-channel_model.create_histograms()
-channel_model.plot_cir('red')
+#channel_model.create_histograms()
+#channel_model.plot_cir('red')
 
 
 #ending code
