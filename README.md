@@ -69,6 +69,11 @@ room.create_grid(led1.position,pd1.position)
 #Create parameters of model (pairwise cosine and distance)
 room.create_parameters(pd1.fov)
 
+```
+
+The previous values for source, receiver and environment are the default values. Using this set of parameters, the script compute the DC-gain of the channel, the lighting performance index and the interchannel matrix using the follow functions:
+
+```python
 #Defining a new object type REcursivemodel named ChanelModelA
 channel_model = Recursivemodel("ChannelModelA",led1,pd1,room)
 #Compute the channel impulse response
@@ -87,22 +92,6 @@ channel_model.compute_irradiance()
 channel_model.compute_illuminance()
 #Compute inter channel interference matrix 
 channel_model.compute_channelmatrix()
-```
-
-The previous values for source, receiver and environment are the default values. Using this set of parameters, the script compute the channel impulse response based on the follow functions:
-
-```python
-# The tessellation function calculates the coordinates of every points in the walls discretization, and returns the array_points.
-tessellation(x_lim,y_lim,z_lim,scale_factor):
-
-#This function creates an cross-parmeteres array between points, cosine of output angle and euclidean distance. Returns the cross-parameters array.
-make_parameters(array_points,x_lim,y_lim,z_lim,no_xtick,no_ytick,no_ztick):
-
-#This funciton computes the channel impulse response from cross-parameters array, based on number of reflection. Returns a list with the different order response, h0,h1,h2...hk. 
-h_t(m,tx_pos,rx_pos,points,parameters,x_lim,y_lim,z_lim,no_xtick,no_ytick,no_ztick,init_index,a_r,rho,delta_A,k_reflec):
-
-#This function creates an analysis of the simulation, the total power for each reflection, total power in the receiver and plots. 
-create_report(h_k,k_reflec):
 ```
 
 
