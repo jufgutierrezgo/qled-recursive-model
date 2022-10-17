@@ -2,6 +2,7 @@ from cgi import print_arguments
 from cmath import cos
 from email.policy import default
 from functools import partial
+from turtle import position
 
 import numpy as np 
 from numpy import loadtxt
@@ -61,11 +62,17 @@ class Constants:
 class Transmitter:    
 
     # The init method or constructor
-    def __init__(self, name):
+    def __init__(self, name, position, normal, mlambert, power, wavelengths, fwhm):
            
         # Instance Variable
         self.name = name
-    
+        self.position = np.array(position)
+        self.normal = np.array([normal])  
+        self.mlambert = mlambert
+        self.power = power 
+        self.wavelengths = np.array(wavelengths)
+        self.fwhm = np.array(fwhm)
+
     # Set the [x y z] position vector.
     def set_position(self, position):
         self.position = np.array(position)
@@ -129,16 +136,28 @@ class Transmitter:
         return 0
 
 #Class for the photodetector
-class Photodetector:
-
-
-    #Class constants
+class Photodetector:    
 
     # The init method or constructor
-    def __init__(self, name):
+    def __init__(self, name, position, normal, area, fov, sensor):
            
         # Instance Variable
         self.name = name
+        self.position = np.array(position)
+        self.normal = np.array([normal])
+        self.area = np.array(area)    
+        self.fov = fov
+        self.sensor = sensor 
+
+        if self.sensor == 'TCS3103-04':            
+            #read text file into NumPy array
+            self.responsivity = loadtxt(Constants.SENSOR_PATH+"ResponsivityTCS3103-04.txt")                       
+        elif self.sensor == 'S10917-35GT':            
+            #read text file into NumPy array
+            self.responsivity = loadtxt(Constants.SENSOR_PATH+"ResponsivityS10917-35GT.txt")                       
+        else:
+            print("Sensor reference not valid.")  
+
     
     # Set the [x y z] position vector.
     def set_position(self, position):
@@ -151,7 +170,6 @@ class Photodetector:
     # Set active area in [m2].
     def set_area(self, area):
         self.area = np.array(area)    
-
     
     # Set FOV of the detector.
     def set_fov(self, fov):
@@ -194,10 +212,13 @@ class Photodetector:
 class Indoorenvironment:        
 
     # The init method or constructor
-    def __init__(self, name):
+    def __init__(self, name,size,no_reflections,resolution):
            
         # Instance Variable
         self.name = name    
+        self.size = np.array(size)
+        self.no_reflections = no_reflections     
+        self.resolution = resolution
     
     # Set the [x y z] position vector.
     def set_size(self, size):
@@ -205,8 +226,12 @@ class Indoorenvironment:
 
     # Set scalar order reflection 
     def set_noreflections(self, no_reflections):
-        self.no_reflections = no_reflections    
+        self.no_reflections = no_reflections        
     
+    # Set distance between points in cm.
+    def set_pointresolution(self, resolution):
+        self.resolution = resolution
+
     # Set the vector of reflectance at central wavelengths.
     def set_reflectance(self, wall_name, reflectance_wall):
         self.wall_name = wall_name
@@ -783,7 +808,7 @@ if __name__ == "__main__":
 
     #code to simulate a VLC channel
 
-    led1 = Transmitter("Led1")
+    led1 = Transmitter("Led1",position=[2.5,2.5,3],normal=[0,0,-1],mlambert=1,power=1,wavelengths=[650,530,430,580],fwhm=[20,12,20,20])
     led1.set_position([2.5,2.5,3])
     led1.set_normal([0,0,-1]) 
     led1.set_mlambert(1)
@@ -793,7 +818,7 @@ if __name__ == "__main__":
     led1.get_parameters()
     #led1.led_pattern()
 
-    pd1 =  Photodetector("PD1")
+    pd1 =  Photodetector("PD1",position=[0.5,1.0,0],normal=[0,0,1],area=1e-4,fov=85,sensor='S10917-35GT')
     pd1.set_position([0.5,1.0,0])
     pd1.set_normal([0,0,1])
     pd1.set_area(1e-4)
@@ -802,7 +827,7 @@ if __name__ == "__main__":
     pd1.plot_responsivity()
     pd1.get_parameters()
 
-    room = Indoorenvironment("Room")
+    room = Indoorenvironment("Room",size=[5,5,3],no_reflections=3,resolution=1/8)
     room.set_size([5,5,3])
     room.set_noreflections(3)
     room.set_pointresolution(1/8)
