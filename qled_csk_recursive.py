@@ -65,47 +65,140 @@ class Transmitter:
     def __init__(self, name, position, normal, mlambert, power, wavelengths, fwhm):
            
         # Instance Variable
-        self.name = name
-        self.position = np.array(position)
-        self.normal = np.array([normal])  
-        self.mlambert = mlambert
-        self.power = power 
-        self.wavelengths = np.array(wavelengths)
-        self.fwhm = np.array(fwhm)
+        self._name = name
+        self._position = np.array(position)
+        self._normal = np.array([normal])  
+        self._mlambert = mlambert
+        self._power = power 
+        self._wavelengths = np.array(wavelengths)
+        self._fwhm = np.array(fwhm)
 
-    # Set the [x y z] position vector.
-    def set_position(self, position):
-        self.position = np.array(position)
+    #Position Property    
+    @property
+    def name(self):
+        """The name property"""
+        print("Get name")
+        return self._name
 
-    # Set the [x y z] normal vector of the transmitter.
-    def set_normal(self, normal):
-        self.normal = np.array([normal])    
-    
-    # Set the scalar lambert number.
-    def set_mlambert(self, mlambert):
-        self.mlambert = mlambert
+    @name.setter
+    def name(self,value):
+        print("Set name")
+        self._name =  value
 
-    # Set the scalar power of the LED in Watts.
-    def set_power(self, power):
-        self.power = power 
+    @name.deleter
+    def name(self):
+        print("Delete name")
+        del self._name
 
-    # Set the [l1 l2 l3 l4] vector of the central wavelengths in [nm].
-    def set_wavelengths(self, wavelengths):
-        self.wavelengths = np.array(wavelengths)
-    
-    # Set the [d1 d2 d3 d4] vector of the full width at half maximum of each central wavelengths, in [nm].
-    def set_fwhm(self, fwhm):
-        self.fwhm = np.array(fwhm)
+    #Position Property    
+    @property
+    def position(self):
+        """The position property"""
+        print("Get TX-position")
+        return self._position
 
-    # Print set of parameters.
-    def get_parameters(self):
-        print('\nList of parameters for LED transmitter:')
-        print('Position [x y z]: ', self.position)
-        print('Normal Vector [x y z]: ', self.normal)
-        print('Lambert Number: ', self.mlambert)
-        print('Power[W]: ', self.power)
-        print('Central Wavelengths[nm]: ', self.wavelengths)
-        print('FWHM[nm]: ', self.fwhm)
+    @position.setter
+    def position(self,position):
+        print("Set TX-position")
+        self._position =  position
+
+    @position.deleter
+    def position(self):
+        print("Delete TX-position")
+        del self._position
+
+    #Normal Property
+    @property
+    def normal(self):
+        """The normal property"""
+        print("Get TX position")
+        return self._normal
+
+    @normal.setter
+    def position(self,normal):
+        self._normal = np.array(normal)        
+
+    @normal.deleter
+    def position(self):
+        print("Delete TX-normal vector")
+        del self._normal
+
+    #mLambert Property
+    @property
+    def mlambert(self):
+        """The Lambert number property"""
+        print("Get Lambert number")
+        return self._mlambert
+
+    @mlambert.setter
+    def mlambert(self,mlabert):
+        self._mlambert =  mlabert
+
+    @mlambert.deleter
+    def mlambert(self):
+        print("Delete Lambert number vector")
+        del self._mlambert
+
+    #Power Property
+    @property
+    def power(self):
+        """The Power property"""
+        print("Get Lambert number")
+        return self._power
+
+    @power.setter
+    def power(self,power):
+        self._power =  power
+
+    @power.deleter
+    def power(self):
+        print("Delete Lambert number vector")
+        del self._power
+
+
+    #Wavelengths Property
+    @property
+    def wavelengths(self):
+        """The Wavelengths property"""
+        print("Get Wavelengths")
+        return self._wavelengths
+
+    @wavelengths.setter
+    def wavelengths(self, wavelengths):
+        self._wavelengths = np.array(wavelengths)
+
+    @wavelengths.deleter
+    def wavelegths(self):
+        print("Delete wavelengths")
+        del self._wavelengths
+
+    #FWHM Property
+    @property
+    def fwhm(self):
+        """The FWHM property"""
+        print("Get FWHM")
+        return self._power
+
+    @fwhm.setter
+    def fwhm(self, fwhm):
+        self._fwhm = np.array(fwhm)
+
+    @fwhm.deleter
+    def fwhm(self):
+        print("Delete FWHM")
+        del self._fwhm    
+
+
+    def __str__(self) -> str:
+        return (
+            f'List of parameters for LED transmitter: \n'
+            f'Position [x y z]: {self._position} \n'
+            f'Normal Vector [x y z]: {self._normal} \n' 
+            f'Lambert Number: {self._mlambert} \n'
+            f'Power[W]: {self._power} \n'
+            f'Central Wavelengths[nm]: {self._wavelengths} \n'
+            f'FWHM[nm]: {self._fwhm}'
+        )
 
     def led_pattern(self) -> None:
         """Function to create a 3d radiation pattern of the LED source.
@@ -122,7 +215,7 @@ class Transmitter:
 
         theta, phi = np.linspace(0, 2 * np.pi, 40), np.linspace(0,np.pi/2, 40)
         THETA, PHI = np.meshgrid(theta, phi)
-        R = (self.mlambert +1)/(2*np.pi)*np.cos(PHI)**self.mlambert
+        R = (self._mlambert +1)/(2*np.pi)*np.cos(PHI)**self._mlambert
         X = R * np.sin(PHI) * np.cos(THETA)
         Y = R * np.sin(PHI) * np.sin(THETA)
         Z = R * np.cos(PHI)
@@ -809,14 +902,14 @@ if __name__ == "__main__":
     #code to simulate a VLC channel
 
     led1 = Transmitter("Led1",position=[2.5,2.5,3],normal=[0,0,-1],mlambert=1,power=1,wavelengths=[650,530,430,580],fwhm=[20,12,20,20])
-    led1.set_position([2.5,2.5,3])
-    led1.set_normal([0,0,-1]) 
-    led1.set_mlambert(1)
-    led1.set_power(1)
-    led1.set_wavelengths([650,530,430,580])
-    led1.set_fwhm([20,12,20,20])
-    led1.get_parameters()
-    #led1.led_pattern()
+    #led1.set_position([2.5,2.5,3])
+    #led1.set_normal([0,0,-1]) 
+    #led1.set_mlambert(1)
+    #led1.set_power(1)
+    #led1.set_wavelengths([650,530,430,580])
+    #led1.set_fwhm([20,12,20,20])
+    #led1.get_parameters()
+    led1.led_pattern()
 
     pd1 =  Photodetector("PD1",position=[0.5,1.0,0],normal=[0,0,1],area=1e-4,fov=85,sensor='S10917-35GT')
     pd1.set_position([0.5,1.0,0])
@@ -837,7 +930,7 @@ if __name__ == "__main__":
     room.set_reflectance('east',[0.8,0.8,0.8,0.8])
     room.set_reflectance('south',[0.8,0.8,0.8,0.8])
     room.set_reflectance('floor',[0.3,0.3,0.3,0.3])    
-    room.create_grid(led1.position,pd1.position)
+    room.create_grid(led1._position,pd1.position)
     room.create_parameters(pd1.fov)
 
     channel_model = Recursivemodel("ChannelModelA",led1,pd1,room)
