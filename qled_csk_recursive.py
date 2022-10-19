@@ -395,62 +395,114 @@ class Indoorenvironment:
     def __init__(self, name,size,no_reflections,resolution):
            
         # Instance Variable
-        self.name = name    
-        self.size = np.array(size)
-        self.no_reflections = no_reflections     
-        self.resolution = resolution
+        self._name = name    
+        self._size = np.array(size)
+        self._no_reflections = no_reflections     
+        self._resolution = resolution
     
-    # Set the [x y z] position vector.
-    def set_size(self, size):
-        self.size = np.array(size)
+    #Name Property    
+    @property
+    def name(self):
+        """The name property"""
+        print("Get name")
+        return self._name
 
-    # Set scalar order reflection 
-    def set_noreflections(self, no_reflections):
-        self.no_reflections = no_reflections        
+    @name.setter
+    def name(self,value):
+        print("Set name")
+        self._name =  value
+
+    @name.deleter
+    def name(self):
+        print("Delete name")
+        del self._name
+
+    #Size Property    
+    @property
+    def size(self):
+        """The size property"""
+        print("Get size")
+        return self._size
+
+    @size.setter
+    def size(self,value):
+        print("Set size")
+        self._size =  value
+
+    @size.deleter
+    def size(self):
+        print("Delete size")
+        del self._size
+
+    #Number of Reflections Property    
+    @property
+    def no_reflections(self):
+        """The number of reflections property"""
+        print("Get number of reflections")
+        return self._no_reflections
+
+    @no_reflections.setter
+    def no_reflections(self,value):
+        print("Set number of reflections")
+        self._no_reflections =  value
+
+    @no_reflections.deleter
+    def size(self):
+        print("Delete number of reflections")
+        del self._no_reflections    
+
+    #Number of Resolution Property    
+    @property
+    def resolution(self):
+        """The resolution property"""
+        print("Get resolution")
+        return self._resolution
+
+    @resolution.setter
+    def resolution(self,value):
+        print("Set resolution")
+        self._resolution =  value
+
+    @resolution.deleter
+    def resolution(self):
+        print("Delete resolution")
+        del self._resolution   
+
+    def __str__(self) -> str:
+        return(
+            f'List of parameters for indoor envirionment:'
+            f'Size [x y z] -> [m]: {self._size}'
+            f'Order reflection: {self._no_reflections}'            
+            f'Resolution points [cm]: {self._resolution}'
+        )        
     
-    # Set distance between points in cm.
-    def set_pointresolution(self, resolution):
-        self.resolution = resolution
-
     # Set the vector of reflectance at central wavelengths.
     def set_reflectance(self, wall_name, reflectance_wall):
-        self.wall_name = wall_name
-        self.reflectance_wall = np.array(reflectance_wall)
+        self._wall_name = wall_name
+        self._reflectance_wall = np.array(reflectance_wall)
 
-        if self.wall_name == 'ceiling':
-            self.ceiling = self.reflectance_wall
-        elif self.wall_name == 'west':
-            self.west = self.reflectance_wall
-        elif self.wall_name == 'north':
-            self.north = self.reflectance_wall
-        elif self.wall_name == 'east':
-            self.east = self.reflectance_wall
-        elif self.wall_name == 'south':
-            self.south = self.reflectance_wall
-        elif self.wall_name == 'floor':
-            self.floor = self.reflectance_wall
+        if self._wall_name == 'ceiling':
+            self._ceiling = self._reflectance_wall
+        elif self._wall_name == 'west':
+            self._west = self._reflectance_wall
+        elif self._wall_name == 'north':
+            self._north = self._reflectance_wall
+        elif self._wall_name == 'east':
+            self._east = self._reflectance_wall
+        elif self._wall_name == 'south':
+            self._south = self._reflectance_wall
+        elif self._wall_name == 'floor':
+            self._floor = self._reflectance_wall
         else: 
             print('Invalid wall name.')
 
-    # Set distance between points in cm.
-    def set_pointresolution(self, resolution):
-        self.resolution = resolution
-
-    # Print set of parameters.
-    def get_parameters(self):
-        print('\nList of parameters for indoor envirionment:')
-        print('Size [x y z] -> [m]: ', self.size)
-        print('Order reflection: ', self.no_reflections)
-        print('Reflectance at central wavelengths [r1 r2 r3 r4]: ', self.reflectance)
-        print('Resolution points [cm]: ', self.resolution)        
-        
     # Create 3D coordinates of all points in the model
     def create_grid(self,tx_position,rx_position):                
 
         #Number of ticks in each axis, based on spatial resolution. 
-        no_xtick = int(self.size[0]/self.resolution)
-        no_ytick = int(self.size[1]/self.resolution)
-        no_ztick = int(self.size[2]/self.resolution)
+        no_xtick = int(self._size[0]/self._resolution)
+        no_ytick = int(self._size[1]/self._resolution)
+        no_ztick = int(self._size[2]/self._resolution)
 
         print('\nGrid Parameters:')
         print("Number of ticks [x y z]:",no_xtick,no_ytick,no_ztick)
@@ -472,17 +524,17 @@ class Indoorenvironment:
         floor_normal = np.repeat([Constants.NORMAL_VECTOR_WALL[5]],no_xtick*no_ytick,axis=0)
         
         #Creates reflectance vector for each point
-        ceiling_reflectance = np.repeat([self.ceiling],no_xtick*no_ytick,axis=0)
-        west_reflectance = np.repeat([self.west],no_ztick*no_xtick,axis=0)
-        north_reflectance = np.repeat([self.north],no_ztick*no_ytick,axis=0)
-        east_reflectance = np.repeat([self.east],no_ztick*no_xtick,axis=0)
-        south_reflectance = np.repeat([self.south],no_ztick*no_ytick,axis=0)
-        floor_reflectance = np.repeat([self.floor],no_xtick*no_ytick,axis=0)
+        ceiling_reflectance = np.repeat([self._ceiling],no_xtick*no_ytick,axis=0)
+        west_reflectance = np.repeat([self._west],no_ztick*no_xtick,axis=0)
+        north_reflectance = np.repeat([self._north],no_ztick*no_ytick,axis=0)
+        east_reflectance = np.repeat([self._east],no_ztick*no_xtick,axis=0)
+        south_reflectance = np.repeat([self._south],no_ztick*no_ytick,axis=0)
+        floor_reflectance = np.repeat([self._floor],no_xtick*no_ytick,axis=0)
                
         #Array with ticks coordinates in every axis
-        x_ticks = np.linspace(self.resolution/2,self.size[0]-self.resolution/2,no_xtick)
-        y_ticks = np.linspace(self.resolution/2,self.size[1]-self.resolution/2,no_ytick)
-        z_ticks = np.linspace(self.resolution/2,self.size[2]-self.resolution/2,no_ztick)
+        x_ticks = np.linspace(self._resolution/2,self._size[0]-self._resolution/2,no_xtick)
+        y_ticks = np.linspace(self._resolution/2,self._size[1]-self._resolution/2,no_ytick)
+        z_ticks = np.linspace(self._resolution/2,self._size[2]-self._resolution/2,no_ztick)
 
         #Computes the total number of points. If the door is not included, the rx position point is added at end of the array points                
         self.no_points=2*no_xtick*no_ytick + 2*no_ztick*no_xtick + 2*no_ztick*no_ytick   + 2 
@@ -495,15 +547,15 @@ class Indoorenvironment:
         #Save x,y,z coordinates of points in each wall
         ceiling_points[:,0] = floor_points[:,0] = x_ygrid.flatten() 
         ceiling_points[:,1] = floor_points[:,1] = y_xgrid.flatten() 
-        ceiling_points[:,2] , floor_points[:,2] = self.size[2] , 0        
+        ceiling_points[:,2] , floor_points[:,2] = self._size[2] , 0        
         
         west_points[:,0] = east_points[:,0] = x_zgrid.flatten() 
         west_points[:,2] = east_points[:,2] = z_xgrid.flatten() 
-        east_points[:,1] , west_points[:,1] = 0 , self.size[1]
+        east_points[:,1] , west_points[:,1] = 0 , self._size[1]
         
         north_points[:,1] = south_points[:,1] = y_zgrid.flatten() 
         north_points[:,2] = south_points[:,2] = z_ygrid.flatten() 
-        south_points[:,0] , north_points[:,0] = 0 , self.size[0]    
+        south_points[:,0] , north_points[:,0] = 0 , self._size[0]    
         
         
         #Creates tensors for gridpoints, normal vectors and reflectance vectors.        
@@ -516,7 +568,7 @@ class Indoorenvironment:
         
 
         #Delta area calculation
-        self.deltaA = (2*self.size[0]*self.size[1] + 2*self.size[0]*self.size[2] + 2*self.size[1]*self.size[2])/(self.no_points-2)
+        self.deltaA = (2*self._size[0]*self._size[1] + 2*self._size[0]*self._size[2] + 2*self._size[1]*self._size[2])/(self.no_points-2)
         
         print("The total number of points is: ",self.no_points)
         print("DeltaA: ",self.deltaA)
@@ -1008,9 +1060,9 @@ if __name__ == "__main__":
     #pd1.get_parameters()
 
     room = Indoorenvironment("Room",size=[5,5,3],no_reflections=3,resolution=1/8)
-    room.set_size([5,5,3])
-    room.set_noreflections(3)
-    room.set_pointresolution(1/8)
+    #room.set_size([5,5,3])
+    #room.set_noreflections(3)
+    #room.set_pointresolution(1/8)
     room.set_reflectance('ceiling',[0.8,0.8,0.8,0.8])
     room.set_reflectance('west',[0.8,0.8,0.8,0.8])
     room.set_reflectance('north',[0.8,0.8,0.8,0.8])
@@ -1018,7 +1070,7 @@ if __name__ == "__main__":
     room.set_reflectance('south',[0.8,0.8,0.8,0.8])
     room.set_reflectance('floor',[0.3,0.3,0.3,0.3])    
     room.create_grid(led1._position,pd1._position)
-    room.create_parameters(pd1.fov)
+    room.create_parameters(pd1._fov)
 
     channel_model = Recursivemodel("ChannelModelA",led1,pd1,room)
     channel_model.compute_cir()
