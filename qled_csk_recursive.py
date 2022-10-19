@@ -73,7 +73,7 @@ class Transmitter:
         self._wavelengths = np.array(wavelengths)
         self._fwhm = np.array(fwhm)
 
-    #Position Property    
+    #Name Property    
     @property
     def name(self):
         """The name property"""
@@ -116,6 +116,7 @@ class Transmitter:
 
     @normal.setter
     def position(self,normal):
+        print("Set name")
         self._normal = np.array(normal)        
 
     @normal.deleter
@@ -132,6 +133,7 @@ class Transmitter:
 
     @mlambert.setter
     def mlambert(self,mlabert):
+        print("Set mLambert")
         self._mlambert =  mlabert
 
     @mlambert.deleter
@@ -148,6 +150,7 @@ class Transmitter:
 
     @power.setter
     def power(self,power):
+        print("Set Power")
         self._power =  power
 
     @power.deleter
@@ -181,6 +184,7 @@ class Transmitter:
 
     @fwhm.setter
     def fwhm(self, fwhm):
+        print("Set FWHM")
         self._fwhm = np.array(fwhm)
 
     @fwhm.deleter
@@ -235,12 +239,118 @@ class Photodetector:
     def __init__(self, name, position, normal, area, fov, sensor):
            
         # Instance Variable
-        self.name = name
-        self.position = np.array(position)
-        self.normal = np.array([normal])
-        self.area = np.array(area)    
-        self.fov = fov
-        self.sensor = sensor 
+        self._name = name
+        self._position = np.array(position)
+        self._normal = np.array([normal])
+        self._area = np.array(area)    
+        self._fov = fov
+        self._sensor = sensor 
+    
+        if self.sensor == 'TCS3103-04':            
+            #read text file into NumPy array
+            self.responsivity = loadtxt(Constants.SENSOR_PATH+"ResponsivityTCS3103-04.txt")                       
+        elif self.sensor == 'S10917-35GT':            
+            #read text file into NumPy array
+            self.responsivity = loadtxt(Constants.SENSOR_PATH+"ResponsivityS10917-35GT.txt")                       
+        else:
+            print("Sensor reference not valid.")  
+
+    #Name Property    
+    @property
+    def name(self):
+        """The name property"""
+        print("Get name")
+        return self._name
+
+    @name.setter
+    def name(self,value):
+        print("Set name")
+        self._name =  value
+
+    @name.deleter
+    def name(self):
+        print("Delete name")
+        del self._name
+
+    #Position Property    
+    @property
+    def position(self):
+        """The position property"""
+        print("Get RX-position")
+        return self._position
+
+    @position.setter
+    def position(self,position):
+        print("Set RX-position")
+        self._position =  position
+
+    @position.deleter
+    def position(self):
+        print("Delete RX-position")
+        del self._position
+
+    #Normal Property
+    @property
+    def normal(self):
+        """The normal property"""
+        print("Get RX-normal vector")
+        return self._normal
+
+    @normal.setter
+    def position(self,normal):
+        print("Set RX-normal vector")
+        self._normal = np.array(normal)        
+
+    @normal.deleter
+    def position(self):
+        print("Delete RX-normal vector")
+        del self._normal
+
+    #Area Property    
+    @property
+    def area(self):
+        """The position property"""
+        print("Get Active Area")
+        return self._area
+
+    @area.setter
+    def area(self,area):
+        print("Set Active Area")
+        self._area =  area
+
+    @area.deleter
+    def area(self):
+        print("Delete Active Area")
+        del self._area
+
+    #FOV Property    
+    @property
+    def fov(self):
+        """The position property"""
+        print("Get FOV")
+        return self._fov
+
+    @fov.setter
+    def fov(self,fov):
+        print("Set FOV")
+        self._fov =  fov
+
+    @fov.deleter
+    def fov(self):
+        print("Delete FOV")
+        del self._fov
+
+    #Sensor Property    
+    @property
+    def sensor(self):
+        """The position property"""
+        print("Get FOV")
+        return self._sensor
+
+    @sensor.setter
+    def sensor(self,sensor):
+        print("Set Sensor")
+        self._sensor =  sensor
 
         if self.sensor == 'TCS3103-04':            
             #read text file into NumPy array
@@ -251,38 +361,23 @@ class Photodetector:
         else:
             print("Sensor reference not valid.")  
 
-    
-    # Set the [x y z] position vector.
-    def set_position(self, position):
-        self.position = np.array(position)
+    @sensor.deleter
+    def sensor(self):
+        print("Delete Sensor")
+        del self._sensor
 
-    # Set the [x y z] normal vector.
-    def set_normal(self, normal):
-        self.normal = np.array([normal])
-
-    # Set active area in [m2].
-    def set_area(self, area):
-        self.area = np.array(area)    
-    
-    # Set FOV of the detector.
-    def set_fov(self, fov):
-        self.fov = fov
-    
-    # Set the type of responsivity profile
-    def set_responsivity(self, sensor):
-        self.sensor = sensor 
-
-        if self.sensor == 'TCS3103-04':            
-            #read text file into NumPy array
-            self.responsivity = loadtxt(Constants.SENSOR_PATH+"ResponsivityTCS3103-04.txt")                       
-        elif self.sensor == 'S10917-35GT':            
-            #read text file into NumPy array
-            self.responsivity = loadtxt(Constants.SENSOR_PATH+"ResponsivityS10917-35GT.txt")                       
-        else:
-            print("Sensor reference not valid.")  
+    def __str__(self) -> str:
+        return (
+            f'\nList of parameters for photodetector: \n'
+            f'Position [x y z]: {self._position} \n'
+            f'Normal Vector [x y z]: {self._normal} \n'
+            f'Active Area[m2]: {self._area} \n'
+            f'FOV: {self._fov} \n'        
+            f'Responsivity: {self._sensor}'
+        )
 
     # Plot the spectral responsivity of the photodetector.
-    def plot_responsivity(self):
+    def plot_responsivity(self) -> None:
         plt.plot(self.responsivity[:,0],self.responsivity[:,1],color='r', linestyle='dashed') 
         plt.plot(self.responsivity[:,0],self.responsivity[:,2],color='g', linestyle='dashed') 
         plt.plot(self.responsivity[:,0],self.responsivity[:,3],color='b', linestyle='dashed')
@@ -292,14 +387,6 @@ class Photodetector:
         plt.grid()
         plt.show()
 
-    # Print set of parameters.
-    def get_parameters(self):
-        print('\nList of parameters for photodetector:')
-        print('Position [x y z]: ', self.position)
-        print('Normal Vector [x y z]: ', self.normal)
-        print('Active Area[m2]: ', self.area)
-        print('FOV: ', self.fov)        
-        print('Responsivity: ', self.sensor)
 
 #Class for the environment
 class Indoorenvironment:        
@@ -912,13 +999,13 @@ if __name__ == "__main__":
     led1.led_pattern()
 
     pd1 =  Photodetector("PD1",position=[0.5,1.0,0],normal=[0,0,1],area=1e-4,fov=85,sensor='S10917-35GT')
-    pd1.set_position([0.5,1.0,0])
-    pd1.set_normal([0,0,1])
-    pd1.set_area(1e-4)
-    pd1.set_fov(85)
-    pd1.set_responsivity('S10917-35GT')
+    #pd1.set_position([0.5,1.0,0])
+    #pd1.set_normal([0,0,1])
+    #pd1.set_area(1e-4)
+    #pd1.set_fov(85)
+    #pd1.set_responsivity('S10917-35GT')
     pd1.plot_responsivity()
-    pd1.get_parameters()
+    #pd1.get_parameters()
 
     room = Indoorenvironment("Room",size=[5,5,3],no_reflections=3,resolution=1/8)
     room.set_size([5,5,3])
@@ -930,7 +1017,7 @@ if __name__ == "__main__":
     room.set_reflectance('east',[0.8,0.8,0.8,0.8])
     room.set_reflectance('south',[0.8,0.8,0.8,0.8])
     room.set_reflectance('floor',[0.3,0.3,0.3,0.3])    
-    room.create_grid(led1._position,pd1.position)
+    room.create_grid(led1._position,pd1._position)
     room.create_parameters(pd1.fov)
 
     channel_model = Recursivemodel("ChannelModelA",led1,pd1,room)
