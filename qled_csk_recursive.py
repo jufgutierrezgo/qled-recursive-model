@@ -76,104 +76,63 @@ class Transmitter:
     #Name Property    
     @property
     def name(self):
-        """The name property"""
-        print("Get name")
+        """The name property"""        
         return self._name
 
     @name.setter
-    def name(self,value):
-        print("Set name")
+    def name(self,value):        
         self._name =  value
-
-    @name.deleter
-    def name(self):
-        print("Delete name")
-        del self._name
-
+    
     #Position Property    
     @property
     def position(self):
-        """The position property"""
-        print("Get TX-position")
+        """The position property"""    
         return self._position
 
     @position.setter
-    def position(self,position):
-        print("Set TX-position")
-        self._position =  position
-
-    @position.deleter
-    def position(self):
-        print("Delete TX-position")
-        del self._position
+    def position(self,position):        
+        self._position =  position    
 
     #Normal Property
     @property
     def normal(self):
-        """The normal property"""
-        print("Get TX position")
+        """The normal property"""        
         return self._normal
 
     @normal.setter
-    def position(self,normal):
-        print("Set name")
+    def position(self,normal):        
         self._normal = np.array(normal)        
-
-    @normal.deleter
-    def position(self):
-        print("Delete TX-normal vector")
-        del self._normal
-
+    
     #mLambert Property
     @property
     def mlambert(self):
-        """The Lambert number property"""
-        print("Get Lambert number")
+        """The Lambert number property"""        
         return self._mlambert
 
     @mlambert.setter
-    def mlambert(self,mlabert):
-        print("Set mLambert")
+    def mlambert(self,mlabert):        
         self._mlambert =  mlabert
-
-    @mlambert.deleter
-    def mlambert(self):
-        print("Delete Lambert number vector")
-        del self._mlambert
 
     #Power Property
     @property
     def power(self):
         """The Power property"""
-        print("Get Lambert number")
         return self._power
 
     @power.setter
-    def power(self,power):
-        print("Set Power")
+    def power(self,power):        
         self._power =  power
-
-    @power.deleter
-    def power(self):
-        print("Delete Lambert number vector")
-        del self._power
 
 
     #Wavelengths Property
     @property
     def wavelengths(self):
         """The Wavelengths property"""
-        print("Get Wavelengths")
         return self._wavelengths
 
     @wavelengths.setter
     def wavelengths(self, wavelengths):
         self._wavelengths = np.array(wavelengths)
-
-    @wavelengths.deleter
-    def wavelegths(self):
-        print("Delete wavelengths")
-        del self._wavelengths
 
     #FWHM Property
     @property
@@ -183,15 +142,8 @@ class Transmitter:
         return self._power
 
     @fwhm.setter
-    def fwhm(self, fwhm):
-        print("Set FWHM")
+    def fwhm(self, fwhm):        
         self._fwhm = np.array(fwhm)
-
-    @fwhm.deleter
-    def fwhm(self):
-        print("Delete FWHM")
-        del self._fwhm    
-
 
     def __str__(self) -> str:
         return (
@@ -267,89 +219,54 @@ class Photodetector:
         print("Set name")
         self._name =  value
 
-    @name.deleter
-    def name(self):
-        print("Delete name")
-        del self._name
-
     #Position Property    
     @property
     def position(self):
         """The position property"""
-        print("Get RX-position")
         return self._position
 
     @position.setter
-    def position(self,position):
-        print("Set RX-position")
-        self._position =  position
-
-    @position.deleter
-    def position(self):
-        print("Delete RX-position")
-        del self._position
+    def position(self,position):        
+        self._position =  position    
 
     #Normal Property
     @property
     def normal(self):
-        """The normal property"""
-        print("Get RX-normal vector")
+        """The normal property"""        
         return self._normal
 
     @normal.setter
-    def position(self,normal):
-        print("Set RX-normal vector")
+    def position(self,normal):        
         self._normal = np.array(normal)        
-
-    @normal.deleter
-    def position(self):
-        print("Delete RX-normal vector")
-        del self._normal
 
     #Area Property    
     @property
     def area(self):
-        """The position property"""
-        print("Get Active Area")
+        """The position property"""        
         return self._area
 
     @area.setter
-    def area(self,area):
-        print("Set Active Area")
+    def area(self,area):        
         self._area =  area
-
-    @area.deleter
-    def area(self):
-        print("Delete Active Area")
-        del self._area
 
     #FOV Property    
     @property
     def fov(self):
         """The position property"""
-        print("Get FOV")
         return self._fov
 
     @fov.setter
-    def fov(self,fov):
-        print("Set FOV")
+    def fov(self,fov):        
         self._fov =  fov
-
-    @fov.deleter
-    def fov(self):
-        print("Delete FOV")
-        del self._fov
-
+    
     #Sensor Property    
     @property
     def sensor(self):
         """The position property"""
-        print("Get FOV")
         return self._sensor
 
     @sensor.setter
     def sensor(self,sensor):
-        print("Set Sensor")
         self._sensor =  sensor
 
         if self.sensor == 'TCS3103-04':            
@@ -360,12 +277,7 @@ class Photodetector:
             self.responsivity = loadtxt(Constants.SENSOR_PATH+"ResponsivityS10917-35GT.txt")                       
         else:
             print("Sensor reference not valid.")  
-
-    @sensor.deleter
-    def sensor(self):
-        print("Delete Sensor")
-        del self._sensor
-
+    
     def __str__(self) -> str:
         return (
             f'\nList of parameters for photodetector: \n'
@@ -403,25 +315,17 @@ class Indoorenvironment:
     #Name Property    
     @property
     def name(self):
-        """The name property"""
-        print("Get name")
+        """The name property"""        
         return self._name
 
     @name.setter
-    def name(self,value):
-        print("Set name")
+    def name(self,value):        
         self._name =  value
-
-    @name.deleter
-    def name(self):
-        print("Delete name")
-        del self._name
-
+    
     #Size Property    
     @property
     def size(self):
         """The size property"""
-        print("Get size")
         return self._size
 
     @size.setter
@@ -429,44 +333,25 @@ class Indoorenvironment:
         print("Set size")
         self._size =  value
 
-    @size.deleter
-    def size(self):
-        print("Delete size")
-        del self._size
-
     #Number of Reflections Property    
     @property
     def no_reflections(self):
-        """The number of reflections property"""
-        print("Get number of reflections")
+        """The number of reflections property"""    
         return self._no_reflections
 
     @no_reflections.setter
-    def no_reflections(self,value):
-        print("Set number of reflections")
+    def no_reflections(self,value):        
         self._no_reflections =  value
-
-    @no_reflections.deleter
-    def size(self):
-        print("Delete number of reflections")
-        del self._no_reflections    
-
+    
     #Number of Resolution Property    
     @property
     def resolution(self):
-        """The resolution property"""
-        print("Get resolution")
+        """The resolution property"""        
         return self._resolution
 
     @resolution.setter
-    def resolution(self,value):
-        print("Set resolution")
-        self._resolution =  value
-
-    @resolution.deleter
-    def resolution(self):
-        print("Delete resolution")
-        del self._resolution   
+    def resolution(self,value):        
+        self._resolution =  value    
 
     def __str__(self) -> str:
         return(
@@ -954,10 +839,10 @@ class Recursivemodel:
         self.wavelenght = np.arange(380, 782, 2) 
         
         #Arrays to estimate the RGBY gain spectrum
-        self.r_data = self.rgby_dcgain[0]*stats.norm.pdf(self.wavelenght, led1.wavelengths[0], led1.fwhm[0])
-        self.g_data = self.rgby_dcgain[1]*stats.norm.pdf(self.wavelenght, led1.wavelengths[1], led1.fwhm[1])
-        self.b_data = self.rgby_dcgain[2]*stats.norm.pdf(self.wavelenght, led1.wavelengths[2], led1.fwhm[2])
-        self.y_data = self.rgby_dcgain[3]*stats.norm.pdf(self.wavelenght, led1.wavelengths[3], led1.fwhm[3])
+        self.r_data = self.rgby_dcgain[0]*stats.norm.pdf(self.wavelenght, led1._wavelengths[0], led1._fwhm[0]/2)
+        self.g_data = self.rgby_dcgain[1]*stats.norm.pdf(self.wavelenght, led1._wavelengths[1], led1._fwhm[1]/2)
+        self.b_data = self.rgby_dcgain[2]*stats.norm.pdf(self.wavelenght, led1._wavelengths[2], led1._fwhm[2]/2)
+        self.y_data = self.rgby_dcgain[3]*stats.norm.pdf(self.wavelenght, led1._wavelengths[3], led1._fwhm[3]/2)
         self.spd_data = [self.r_data , self.g_data , self.b_data , self.y_data]
 
         return 0
@@ -1059,7 +944,7 @@ if __name__ == "__main__":
     pd1.plot_responsivity()
     #pd1.get_parameters()
 
-    room = Indoorenvironment("Room",size=[5,5,3],no_reflections=3,resolution=1/8)
+    room = Indoorenvironment("Room",size=[5,5,3],no_reflections=3,resolution=1/4)
     #room.set_size([5,5,3])
     #room.set_noreflections(3)
     #room.set_pointresolution(1/8)
