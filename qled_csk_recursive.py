@@ -2,6 +2,8 @@ from cgi import print_arguments
 from cmath import cos
 from email.policy import default
 from functools import partial
+from multiprocessing.dummy import Array
+from tokenize import String
 from turtle import position
 
 import numpy as np 
@@ -62,7 +64,14 @@ class Constants:
 class Transmitter:    
 
     # The init method or constructor
-    def __init__(self, name, position, normal, mlambert, power, wavelengths, fwhm):
+    def __init__(self, 
+        name: str, 
+        position: Tuple[float,float,float], 
+        normal: Tuple[float,float,float], 
+        wavelengths: Tuple, 
+        fwhm: Tuple, 
+        mlambert: float =1, 
+        power: float =1) -> None:
            
         # Instance Variable
         self._name = name
@@ -75,7 +84,7 @@ class Transmitter:
 
     #Name Property    
     @property
-    def name(self):
+    def name(self) -> str:
         """The name property"""        
         return self._name
 
@@ -85,7 +94,7 @@ class Transmitter:
     
     #Position Property    
     @property
-    def position(self):
+    def position(self) -> Tuple[float,float,float]:
         """The position property"""    
         return self._position
 
@@ -95,7 +104,7 @@ class Transmitter:
 
     #Normal Property
     @property
-    def normal(self):
+    def normal(self) -> Tuple[float,float,float]:
         """The normal property"""        
         return self._normal
 
@@ -105,7 +114,7 @@ class Transmitter:
     
     #mLambert Property
     @property
-    def mlambert(self):
+    def mlambert(self)  -> float:
         """The Lambert number property"""        
         return self._mlambert
 
@@ -115,7 +124,7 @@ class Transmitter:
 
     #Power Property
     @property
-    def power(self):
+    def power(self) -> float:
         """The Power property"""
         return self._power
 
@@ -126,7 +135,7 @@ class Transmitter:
 
     #Wavelengths Property
     @property
-    def wavelengths(self):
+    def wavelengths(self)  -> Tuple:
         """The Wavelengths property"""
         return self._wavelengths
 
@@ -136,9 +145,8 @@ class Transmitter:
 
     #FWHM Property
     @property
-    def fwhm(self):
-        """The FWHM property"""
-        print("Get FWHM")
+    def fwhm(self) -> Tuple:
+        """The FWHM property"""        
         return self._power
 
     @fwhm.setter
@@ -188,7 +196,13 @@ class Transmitter:
 class Photodetector:    
 
     # The init method or constructor
-    def __init__(self, name, position, normal, area, fov, sensor):
+    def __init__(self, 
+        name: str, 
+        position: Tuple[float,float,float], 
+        normal: Tuple[float,float,float], 
+        area: Tuple[float,float,float], 
+        sensor: str ="", 
+        fov: float =90) -> None:
            
         # Instance Variable
         self._name = name
@@ -200,28 +214,30 @@ class Photodetector:
     
         if self.sensor == 'TCS3103-04':            
             #read text file into NumPy array
-            self.responsivity = loadtxt(Constants.SENSOR_PATH+"ResponsivityTCS3103-04.txt")                       
+            self.responsivity = loadtxt(Constants.SENSOR_PATH+"ResponsivityTCS3103-04.txt")
+            print("Responsivity loaded succesfully")                       
         elif self.sensor == 'S10917-35GT':            
             #read text file into NumPy array
             self.responsivity = loadtxt(Constants.SENSOR_PATH+"ResponsivityS10917-35GT.txt")                       
+            print("Responsivity loaded succesfully")
+        elif self.sensor == '': 
+            print("Specify sensor reference")
         else:
-            print("Sensor reference not valid.")  
+            print("Sensor reference not valid")  
 
     #Name Property    
     @property
-    def name(self):
-        """The name property"""
-        print("Get name")
+    def name(self) -> str:
+        """The name property"""    
         return self._name
 
     @name.setter
-    def name(self,value):
-        print("Set name")
+    def name(self,value):        
         self._name =  value
 
     #Position Property    
     @property
-    def position(self):
+    def position(self) -> Tuple[float,float,float]:
         """The position property"""
         return self._position
 
@@ -231,7 +247,7 @@ class Photodetector:
 
     #Normal Property
     @property
-    def normal(self):
+    def normal(self) -> Tuple[float,float,float]:
         """The normal property"""        
         return self._normal
 
@@ -241,7 +257,7 @@ class Photodetector:
 
     #Area Property    
     @property
-    def area(self):
+    def area(self) -> float:
         """The position property"""        
         return self._area
 
@@ -251,7 +267,7 @@ class Photodetector:
 
     #FOV Property    
     @property
-    def fov(self):
+    def fov(self)  -> float:
         """The position property"""
         return self._fov
 
@@ -261,7 +277,7 @@ class Photodetector:
     
     #Sensor Property    
     @property
-    def sensor(self):
+    def sensor(self) -> str:
         """The position property"""
         return self._sensor
 
@@ -271,12 +287,16 @@ class Photodetector:
 
         if self.sensor == 'TCS3103-04':            
             #read text file into NumPy array
-            self.responsivity = loadtxt(Constants.SENSOR_PATH+"ResponsivityTCS3103-04.txt")                       
+            self.responsivity = loadtxt(Constants.SENSOR_PATH+"ResponsivityTCS3103-04.txt")
+            print("Responsivity loaded succesfully")                       
         elif self.sensor == 'S10917-35GT':            
             #read text file into NumPy array
             self.responsivity = loadtxt(Constants.SENSOR_PATH+"ResponsivityS10917-35GT.txt")                       
+            print("Responsivity loaded succesfully")
+        elif self.sensor == '': 
+            print("Specify sensor reference")
         else:
-            print("Sensor reference not valid.")  
+            print("Sensor reference not valid")  
     
     def __str__(self) -> str:
         return (
@@ -285,7 +305,7 @@ class Photodetector:
             f'Normal Vector [x y z]: {self._normal} \n'
             f'Active Area[m2]: {self._area} \n'
             f'FOV: {self._fov} \n'        
-            f'Responsivity: {self._sensor}'
+            f'Sensor: {self._sensor}'            
         )
 
     # Plot the spectral responsivity of the photodetector.
@@ -304,13 +324,18 @@ class Photodetector:
 class Indoorenvironment:        
 
     # The init method or constructor
-    def __init__(self, name,size,no_reflections,resolution):
+    def __init__(self, 
+        name: str,
+        size: Tuple[float,float,float],
+        resolution: float,
+        no_reflections: int=3) -> None:
            
         # Instance Variable
         self._name = name    
-        self._size = np.array(size)
-        self._no_reflections = no_reflections     
+        self._size = np.array(size)        
         self._resolution = resolution
+        self._no_reflections = no_reflections     
+        
     
     #Name Property    
     @property
@@ -324,7 +349,7 @@ class Indoorenvironment:
     
     #Size Property    
     @property
-    def size(self):
+    def size(self) -> Tuple[float,float,float]:
         """The size property"""
         return self._size
 
@@ -335,7 +360,7 @@ class Indoorenvironment:
 
     #Number of Reflections Property    
     @property
-    def no_reflections(self):
+    def no_reflections(self) -> int:
         """The number of reflections property"""    
         return self._no_reflections
 
@@ -345,14 +370,14 @@ class Indoorenvironment:
     
     #Number of Resolution Property    
     @property
-    def resolution(self):
+    def resolution(self) -> float:
         """The resolution property"""        
         return self._resolution
 
     @resolution.setter
     def resolution(self,value):        
-        self._resolution =  value    
-
+        self._resolution =  value        
+    
     def __str__(self) -> str:
         return(
             f'List of parameters for indoor envirionment:'
@@ -381,8 +406,24 @@ class Indoorenvironment:
         else: 
             print('Invalid wall name.')
 
+    #This function executes the create_grid and computes_parameters methods
+    def create_envirorment(self,
+        led: Transmitter ,
+        pd: Photodetector) -> None:
+
+        tx_position = led._position
+        rx_position = pd._position
+        fov =  pd._fov
+
+        self.create_grid(tx_position,rx_position)        
+        self.compute_parameters(fov)
+
+        return 0
+
     # Create 3D coordinates of all points in the model
-    def create_grid(self,tx_position,rx_position):                
+    def create_grid(self,
+        tx_position: Tuple[float,float,float],
+        rx_position: Tuple[float,float,float]) -> None:                
 
         #Number of ticks in each axis, based on spatial resolution. 
         no_xtick = int(self._size[0]/self._resolution)
@@ -462,7 +503,7 @@ class Indoorenvironment:
 
         return 0       
 
-    def create_parameters(self,fov):
+    def compute_parameters(self,fov: float) -> None:
         """This function creates an 3d-array with cross-parametes between points. 
         
         This parameters are the distance between points and the cosine of the angles 
@@ -496,21 +537,21 @@ class Indoorenvironment:
         
         #Computes pairwise-element distance using tensor
         dist = torch.cdist(self.gridpoints,self.gridpoints)                
-        print("Distance shape->",dist.shape)
+        #print("Distance shape->",dist.shape)
         #print("Distance ->",dist)
         
         #Computes the pairwise-difference (vector) using tensor
         diff = -self.gridpoints.unsqueeze(1) + self.gridpoints
-        print("Difference shape->",diff.shape)        
+        #print("Difference shape->",diff.shape)        
         #print("Difference ->",diff)        
         
         #Computes the unit vector from pairwise-difference usiing tensor
         unit_vector = torch.nan_to_num(torch.div( diff ,dist.reshape(self.no_points,self.no_points,1)),nan=0.0)
-        print("Unitec vector shape ->",unit_vector.shape)
+        #print("Unitec vector shape ->",unit_vector.shape)
 
         #Computes the cosine of angle between unit vector and normal vector using tensor.
         cos_phi = torch.sum(unit_vector*self.normal_vectors,dim=2)        
-        print("Cosine shape->",cos_phi.shape)
+        #print("Cosine shape->",cos_phi.shape)
         #print("Cosine->",cos_phi[-1,:])
 
         array_rx = np.asarray(cos_phi[-1,:])
@@ -542,7 +583,11 @@ class Recursivemodel:
     """ This class contains the function to calculates the CIR and DC-gain in the optical channel. """
 
     # The init method or constructor
-    def __init__(self, name,led,photodetector,room):
+    def __init__(self, 
+        name: str,
+        led: Transmitter, 
+        photodetector: Photodetector, 
+        room: Indoorenvironment) -> None:
            
         # Instance Variable
         self.name = name
@@ -550,8 +595,23 @@ class Recursivemodel:
         self.photodector = photodetector
         self.room = room
     
+    # This method simulates the indoor enviornment
+    def simulate_channel(self) -> 0:
+        
+        self._compute_cir()
+        self._compute_dcgain()
+        self._create_spd()
+        self._compute_cct_cri()
+        self._compute_irradiance()
+        self._compute_illuminance()
+        self._compute_channelmatrix()
+
+        print('Indoor channel simulated.')
+
+        return 0
+
     #Function to compute the CIR
-    def compute_cir(self):        
+    def _compute_cir(self) -> None:        
         """ Function to compute the channel impulse response for each reflection. 
     
         Parameters:
@@ -689,9 +749,9 @@ class Recursivemodel:
         return 0
 
     #This function calculates the total power received from LoS and h_k reflections
-    def compute_dcgain(self):
+    def _compute_dcgain(self) -> None:
 
-        print("\nResults DC Gain [R G B Y]:")          
+        print("\n Results DC Gain [R G B Y]:")          
         self.h_dcgain = np.zeros((room.no_reflections+1,4),np.float32)
 
         for i in range(0,room.no_reflections+1):
@@ -707,7 +767,7 @@ class Recursivemodel:
         return 0
 
     #Function to create histograms from channel impulse response raw data.
-    def create_histograms(self):
+    def _create_histograms(self) -> None:
         """Function to create histograms from channel impulse response raw data. 
         
         The channel impulse response raw data is a list with power and time delay 
@@ -764,10 +824,8 @@ class Recursivemodel:
         
         return 0
 
-
-
     #This function plots the channel impulse response for 4 colors
-    def plot_cir(self,channel):
+    def _plot_cir(self,channel: str = "") -> None:
         
         self.channel = channel
 
@@ -781,21 +839,15 @@ class Recursivemodel:
             color_number = 3
         else:
             print("Invalid color name ('red' or 'green' or 'blue' or 'yellow').")
-            color_number = -1
-
-
-        
+            color_number = -1        
 
         if color_number == -1:
             print("Graphs were not generated.")
         else:
-            for k_reflec in range(0,room.no_reflections+1):
-                #print(np.shape(self.hist_power_time[k_reflec][:,color_number]))
+            for k_reflec in range(0,room.no_reflections+1):            
                      
-
                 fig, (vax) = plt.subplots(1, 1, figsize=(12, 6))
-                #vax.plot(self.delay_hk[k_reflec],self.h_k[k_reflec][:,i], 'o',markersize=2)
-                #vax.vlines(self.delay_hk[k_reflec],[0],self.h_k[k_reflec][:,i],linewidth=1)
+                
                 vax.plot(self.time_scale,self.hist_power_time[k_reflec][:,color_number], 'o',markersize=2)
                 vax.vlines(self.time_scale,[0],self.hist_power_time[k_reflec][:,color_number],linewidth=1)
 
@@ -811,8 +863,7 @@ class Recursivemodel:
 
 
             fig, (vax) = plt.subplots(1, 1, figsize=(12, 6))
-            #vax.plot(self.delay_hk[k_reflec],self.h_k[k_reflec][:,i], 'o',markersize=2)
-            #vax.vlines(self.delay_hk[k_reflec],[0],self.h_k[k_reflec][:,i],linewidth=1)
+            
             vax.plot(self.time_scale,self.total_histogram[:,color_number], 'o',markersize=2)
             vax.vlines(self.time_scale,[0],self.total_histogram[:,color_number],linewidth=1)
 
@@ -828,12 +879,8 @@ class Recursivemodel:
 
         return 0
 
-    # This function creates a gaussian function 
-    def gaussian(x, mu, sig, amp):
-        return amp*np.exp(-np.power(x - mu, 2.) / (2 * np.power(sig, 2.)))
-
     #This function creates a SPD of LED from central wavelengths, FWHM and DC gain of channel
-    def create_spd(self):        
+    def _create_spd(self) -> None:        
         
         #Array for wavelenght points from 380nm to (782-2)nm with 2nm steps
         self.wavelenght = np.arange(380, 782, 2) 
@@ -848,7 +895,7 @@ class Recursivemodel:
         return 0
 
     #This function plots the SPD of QLED
-    def plot_spd(self):
+    def _plot_spd(self) -> None:
 
         ## plot red spd data
         plt.plot(self.wavelenght,self.r_data,'r')
@@ -864,7 +911,7 @@ class Recursivemodel:
         return("SPD plotted.")
 
     #This function calculates a CCT and CRI of the QLED SPD.
-    def compute_cct_cri(self):
+    def _compute_cct_cri(self) -> None:
         
         #Computing the xyz coordinates from SPD-RGBY estimated spectrum
         xyz = lx.spd_to_xyz([self.wavelenght,self.r_data + self.g_data + self.b_data + self.y_data])
@@ -873,29 +920,30 @@ class Recursivemodel:
         #Computing the CCT coordinates from SPD-RGBY estimated spectrum
         self.cct = lx.xyz_to_cct_ohno2014(xyz)
         #Print color data
+        print("Color parameters:")
         print("CCT: ", self.cct)
         print("CRI: ", self.cri)
         
-        return ("CRI and CCT computed.")
+        return 0
 
     #This function calculates the irradiance.
-    def compute_irradiance(self):        
+    def _compute_irradiance(self) -> None:        
         
         self.irradiance = lx.spd_to_power(np.vstack([self.wavelenght,(self.r_data + self.g_data + self.b_data + self.y_data)/pd1.area]),ptype = 'ru') 
         print("Irradiance [W/m2]: ", self.irradiance)
 
-        return ("The irradiance on the dectector was computed.")
+        return 0
 
     #This function calculates the illuminance.
-    def compute_illuminance(self):
+    def _compute_illuminance(self) -> None:
         
         self.illuminance = lx.spd_to_power(np.vstack([self.wavelenght,(self.r_data + self.g_data + self.b_data + self.y_data)/pd1.area]),ptype = 'pu') 
         print("Illuminance [lx]: ", self.illuminance)
 
-        return ("The illuminance on the dectector was computed.")
+        return 0
 
     #This function computes channel matrix
-    def compute_channelmatrix(self):
+    def _compute_channelmatrix(self) -> None:
 
         #Numpy array 2D to save the channel matrix
         self.channelmatrix = np.zeros((Constants.NO_DETECTORS,Constants.NO_LEDS),dtype=np.float32)         
@@ -925,50 +973,26 @@ if __name__ == "__main__":
 
     #code to simulate a VLC channel
 
-    led1 = Transmitter("Led1",position=[2.5,2.5,3],normal=[0,0,-1],mlambert=1,power=1,wavelengths=[650,530,430,580],fwhm=[20,12,20,20])
-    #led1.set_position([2.5,2.5,3])
-    #led1.set_normal([0,0,-1]) 
-    #led1.set_mlambert(1)
-    #led1.set_power(1)
-    #led1.set_wavelengths([650,530,430,580])
-    #led1.set_fwhm([20,12,20,20])
-    #led1.get_parameters()
+    led1 = Transmitter("Led1",position=[2.5,2.5,3],normal=[0,0,-1],mlambert=1,power=1,wavelengths=[650,530,430,580],fwhm=[20,12,20,20])    
     led1.led_pattern()
 
-    pd1 =  Photodetector("PD1",position=[0.5,1.0,0],normal=[0,0,1],area=1e-4,fov=85,sensor='S10917-35GT')
-    #pd1.set_position([0.5,1.0,0])
-    #pd1.set_normal([0,0,1])
-    #pd1.set_area(1e-4)
-    #pd1.set_fov(85)
-    #pd1.set_responsivity('S10917-35GT')
+    pd1 =  Photodetector("PD1",position=[0.5,1.0,0],normal=[0,0,1],area=1e-4,fov=85,sensor='S10917-35GT')    
     pd1.plot_responsivity()
-    #pd1.get_parameters()
+    
 
-    room = Indoorenvironment("Room",size=[5,5,3],no_reflections=3,resolution=1/4)
-    #room.set_size([5,5,3])
-    #room.set_noreflections(3)
-    #room.set_pointresolution(1/8)
+    room = Indoorenvironment("Room",size=[5,5,3],no_reflections=3,resolution=1/4)    
     room.set_reflectance('ceiling',[0.8,0.8,0.8,0.8])
     room.set_reflectance('west',[0.8,0.8,0.8,0.8])
     room.set_reflectance('north',[0.8,0.8,0.8,0.8])
     room.set_reflectance('east',[0.8,0.8,0.8,0.8])
     room.set_reflectance('south',[0.8,0.8,0.8,0.8])
     room.set_reflectance('floor',[0.3,0.3,0.3,0.3])    
-    room.create_grid(led1._position,pd1._position)
-    room.create_parameters(pd1._fov)
+    room.create_envirorment(led1,pd1)
+    
 
     channel_model = Recursivemodel("ChannelModelA",led1,pd1,room)
-    channel_model.compute_cir()
-    channel_model.compute_dcgain()
-    channel_model.create_spd()
-    channel_model.plot_spd()
-    channel_model.compute_cct_cri()
-    channel_model.compute_irradiance()
-    channel_model.compute_illuminance()
-    channel_model.compute_channelmatrix()
-    #channel_model.create_histograms()
-    #channel_model.plot_cir('red')
-
+    channel_model.simulate_channel()
+    
 
     #ending code
 
